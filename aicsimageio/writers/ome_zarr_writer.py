@@ -241,11 +241,8 @@ class OmeZarrWriter:
             while len(channel_names) > len(_channel_colors):
                 _channel_colors = _channel_colors + _channel_colors
 
-            channel_colors = (
-                [_channel_colors[i] for i in range(image_data.shape[cdimindex])]
-                if cdimindex > -1
-                else [_channel_colors[0]]
-            )
+            channel_colors = [_channel_colors[i] for i in range(image_data.shape[cdimindex])]if cdimindex > -1 else [_channel_colors[0]]
+
         # Chunk spatial dimensions
         scale_dim_map = {
             DimensionNames.Time: 1.0,
