@@ -125,6 +125,7 @@ class OmeZarrWriter:
         scale_num_levels: int = 1,
         scale_factor: float = 2.0,
         dimension_order: Optional[str] = None,
+        channel_minmax: Optional[List[Tuple]] = None,
     ) -> None:
         """
         Write a data array to a file.
@@ -367,6 +368,19 @@ class OmeZarrWriter:
         else:
             scaler = None
 
+        if channel_minmax is None:
+            channel_minmax= [
+                (0.0, 1.0)
+                for i in range(image_data.shape[cdimindex] if cdimindex > -1 else 1)
+            ]
+        elif channel_minmax == "calculate":
+            channel_minmax = [
+                (0.0, image_data[i].max())
+                for i in range(image_data.shape[cdimindex] if cdimindex > -1 else 1)
+            ]
+        else:
+            channel_minmax = channel_minmax
+
         # try to construct per-image metadata
         ome_json = OmeZarrWriter.build_ome(
             image_data.shape[zdimindex] if zdimindex > -1 else 1,
@@ -375,12 +389,10 @@ class OmeZarrWriter:
             channel_colors=channel_colors,  # type: ignore
             # This can be slow if computed here.
             # TODO: Rely on user to supply the per-channel min/max.
-            channel_minmax=[
-                (0.0, 1.0)
-                for i in range(image_data.shape[cdimindex] if cdimindex > -1 else 1)
-            ],
+            channel_minmax= channel_minmax,
         )
         # TODO user supplies units?
+
         dim_to_axis = {
             DimensionNames.Time: {"name": "t", "type": "time", "unit": "millisecond"},
             DimensionNames.Channel: {"name": "c", "type": "channel"},
