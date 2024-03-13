@@ -65,7 +65,7 @@ class OmeZarrWriter:
                 {
                     "active": True,
                     "coefficient": 1,
-                    "color": f"{channel_colors[i]:06x}",
+                    "color": f"{channel_colors[i]}",
                     "family": "linear",
                     "inverted": False,
                     "label": channel_names[i],
@@ -237,12 +237,14 @@ class OmeZarrWriter:
                 else [utils.generate_ome_channel_id(image_id=image_name, channel_id=0)]
             )
         if channel_colors is None:
-            # TODO generate proper colors or confirm that the underlying lib can handle
-            # None
+            _channel_colors = ["#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0"]
+            while len(channel_names) > len(_channel_colors):
+                _channel_colors = _channel_colors + _channel_colors
+
             channel_colors = (
-                [i for i in range(image_data.shape[cdimindex])]
+                [_channel_colors[i] for i in range(image_data.shape[cdimindex])]
                 if cdimindex > -1
-                else [0]
+                else [_channel_colors[0]]
             )
         # Chunk spatial dimensions
         scale_dim_map = {
